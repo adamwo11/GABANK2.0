@@ -120,9 +120,9 @@ return (
 <ul>
   {userCards.map((card) => (
     <li key={card.id}>
-      <div>Card Type: {card.cardType}</div>
-      <div>Card Pin: {card.cardPin}</div>
-      <div>First Four Digits: {card.firstFourNumbers}</div>
+      <div>Card Type: {card.cardtype}</div>
+      <div>Card Pin: {card.cardpin}</div>
+      <div>First Four Digits: {card.firstfournumbers}</div>
       <div>Balance: {card.balance}</div>
       <div>
         <Link to={`/atm/${card.id}`}>Go to ATM</Link>
