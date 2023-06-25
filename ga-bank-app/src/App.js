@@ -1,8 +1,11 @@
-import BankApp from "./components/BankApp";
+import React from 'react';
+import BankApp from './components/BankApp';
 
 function App() {
   return (
     <BankApp />
+
+    // <Home />
   );
 }
 
