@@ -5,17 +5,15 @@ const ATMPage = () => {
   const { id } = useParams();
   const [card, setCard] = useState(null);
   const [balance, setBalance] = useState(0);
-  const [withdrawAmount, setWithdrawAmount] = useState('');
-  const [depositAmount, setDepositAmount] = useState('');
+  const [amount, setAmount] = useState('');
+  const [operation, setOperation] = useState('');
 
   useEffect(() => {
-    console.log('bark')
     // Fetch card data based on the provided id
     fetchCardData();
   }, []);
 
   const fetchCardData = async () => {
-    console.log('woof')
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`http://localhost:3002/atm/${id}`, {
@@ -39,53 +37,32 @@ const ATMPage = () => {
     }
   };
 
-  const handleWithdraw = async () => {
-    try {
-      const newBalance = balance - parseInt(withdrawAmount);
-      const response = await fetch(`http://localhost:3002/atm/${id}/withdraw`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ amount: withdrawAmount }),
-      });
-
-      if (response.ok) {
-        setBalance(newBalance);
-        setWithdrawAmount('');
-        console.log('Withdraw successful');
-      } else if (response.status === 401) {
-        console.error('Unauthorized access');
-      } else {
-        console.error('Failed to withdraw');
-      }
-    } catch (error) {
-      console.error('Error withdrawing:', error);
-    }
+  const handleNumberClick = (number) => {
+    setAmount((prevAmount) => prevAmount + number);
   };
 
-  const handleDeposit = async () => {
+  const handleTransaction = async () => {
     try {
-      const newBalance = balance + parseInt(depositAmount);
-      const response = await fetch(`http://localhost:3002/atm/${id}/deposit`, {
+      const newBalance = operation === 'withdraw' ? balance - parseInt(amount) : balance + parseInt(amount);
+      const response = await fetch(`http://localhost:3002/atm/${id}/${operation}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ amount: depositAmount }),
+        body: JSON.stringify({ amount }),
       });
 
       if (response.ok) {
         setBalance(newBalance);
-        setDepositAmount('');
-        console.log('Deposit successful');
+        setAmount('');
+        console.log(`${operation.charAt(0).toUpperCase() + operation.slice(1)} successful`);
       } else if (response.status === 401) {
         console.error('Unauthorized access');
       } else {
-        console.error('Failed to deposit');
+        console.error(`Failed to ${operation}`);
       }
     } catch (error) {
-      console.error('Error depositing:', error);
+      console.error(`Error ${operation}ing:`, error);
     }
   };
 
@@ -114,22 +91,29 @@ const ATMPage = () => {
           <h3>Card Details</h3>
           <div>Card Type: {card.cardType}</div>
           <div>Balance: {balance}</div>
-          <h3>Withdraw</h3>
+          <h3>Withdraw / Deposit</h3>
           <input
             type="number"
-            value={withdrawAmount}
-            onChange={(e) => setWithdrawAmount(e.target.value)}
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
             required
           />
-          <button onClick={handleWithdraw}>Withdraw</button>
-          <h3>Deposit</h3>
-          <input
-            type="number"
-            value={depositAmount}
-            onChange={(e) => setDepositAmount(e.target.value)}
-            required
-          />
-          <button onClick={handleDeposit}>Deposit</button>
+          <div>
+            <button onClick={() => handleTransaction('withdraw')}>Withdraw</button>
+            <button onClick={() => handleTransaction('deposit')}>Deposit</button>
+          </div>
+          <div>
+            <button onClick={() => handleNumberClick(1)}>1</button>
+            <button onClick={() => handleNumberClick(2)}>2</button>
+            <button onClick={() => handleNumberClick(3)}>3</button>
+            <button onClick={() => handleNumberClick(4)}>4</button>
+            <button onClick={() => handleNumberClick(5)}>5</button>
+            <button onClick={() => handleNumberClick(6)}>6</button>
+            <button onClick={() => handleNumberClick(7)}>7</button>
+            <button onClick={() => handleNumberClick(8)}>8</button>
+            <button onClick={() => handleNumberClick(9)}>9</button>
+            <button onClick={() => handleNumberClick(0)}>0</button>
+          </div>
           <h3>Check Balance</h3>
           <button onClick={handleCheckBalance}>Check Balance</button>
           <Link to="/home">Go back to Cards</Link>

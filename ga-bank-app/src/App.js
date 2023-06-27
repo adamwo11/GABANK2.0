@@ -32,23 +32,11 @@ const App = () => {
 
   return (
     <div>
-      <h1>GA BANK</h1>
-      <nav>
-        {loggedIn ? (
-          <button onClick={handleLogout}>Logout</button>
-        ) : (
-          <>
-            <Link to="/login">
-              <button>Login</button>
-            </Link>
-            <Link to="/signup">
-              <button>Signup</button>
-            </Link>
-          </>
-        )}
-      </nav>
       <Routes>
-        <Route path="/" element={<BankApp users={users} handleLogin={handleLogin} />} />
+        <Route
+          path="/"
+          element={<BankApp loggedIn={loggedIn} handleLogout={handleLogout} />}
+        />
         <Route path="/login" element={<LoginPage handleLogin={handleLogin} />} />
         <Route path="/signup" element={<SignupPage handleSignup={handleSignup} />} />
         <Route path="/atm/:id" element={<ATMPage />} />
