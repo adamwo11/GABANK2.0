@@ -7,44 +7,18 @@ const LoginPage = ({ handleLogin }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState(null); // State to store user data
-  const [shouldRedirect, setShouldRedirect] = useState(false); // Flag for redirecting
-
-  useEffect(() => {
-    // Fetch user data when the component mounts
-    fetchUserData();
-  }, []);
-
-  const fetchUserData = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3002/users/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user); // Set the user data in state
-        setShouldRedirect(true); // Set the flag to redirect
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
-  };
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-  
+
     // Input validation
     if (!email.trim() || !password.trim()) {
       setError('Please enter both email and password.');
       return;
     }
-  
+
     setIsLoading(true);
-  
+
     try {
       const response = await fetch('http://localhost:3002/login', {
         method: 'POST',
@@ -53,18 +27,19 @@ const LoginPage = ({ handleLogin }) => {
         },
         body: JSON.stringify({ email, password }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         console.log('Login successful');
         const { id, name, email } = data.user;
         const userData = { id, name, email };
-  
+
         // Store the token in localStorage
         localStorage.setItem('token', data.token);
-  
+
         handleLogin(userData);
+        navigate('/home'); // Redirect to the home page after successful login
       } else {
         setError(data.error || 'Login failed. Please check your credentials.');
       }
@@ -74,15 +49,8 @@ const LoginPage = ({ handleLogin }) => {
     }
 
     setIsLoading(false);
+    
   };
-
-  useEffect(() => {
-    // Redirect when the flag is set to true
-    if (shouldRedirect) {
-      navigate('/', { state: { user } });
-    }
-  }, [shouldRedirect, navigate, user]);
-
   return (
     <div>
       <h2>Login Page</h2>

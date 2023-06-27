@@ -1,23 +1,7 @@
-import React, { useState } from 'react';
-import { Link, Route, Routes } from 'react-router-dom';
-import LoginPage from './users/LoginPage';
-import SignupPage from './users/SignupPage';
-import Home from './Home';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-const BankApp = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [users, setUsers] = useState(null);
-
-  const handleLogin = (userData) => {
-    setUsers(userData);
-    setLoggedIn(true);
-  };
-
-  const handleLogout = () => {
-    setUsers(null);
-    setLoggedIn(false);
-  };
-
+const BankApp = ({ loggedIn, handleLogout }) => {
   return (
     <div>
       <h1>GA BANK</h1>
@@ -35,14 +19,6 @@ const BankApp = () => {
           </>
         )}
       </nav>
-      <Routes>
-        <Route
-          path="/"
-          element={loggedIn ? <Home users={users} /> : <LoginPage handleLogin={handleLogin} />}
-        />
-        <Route path="/login" element={<LoginPage handleLogin={handleLogin} />} />
-        <Route path="/signup" element={<SignupPage />} />
-      </Routes>
     </div>
   );
 };

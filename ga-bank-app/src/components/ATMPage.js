@@ -1,66 +1,60 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
 
-const ATMPage = ({ match }) => {
+const ATMPage = () => {
+  const { id } = useParams();
   const [card, setCard] = useState(null);
   const [balance, setBalance] = useState(0);
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [depositAmount, setDepositAmount] = useState('');
 
   useEffect(() => {
-    // Fetch the card data based on the card ID from the URL parameter
-    fetchCard(match.params.cardId);
-  }, [match.params.cardId]);
+    console.log('bark')
+    // Fetch card data based on the provided id
+    fetchCardData();
+  }, []);
 
-  const fetchCard = async (cardId) => {
+  const fetchCardData = async () => {
+    console.log('woof')
     try {
-      // Retrieve the JWT token from the storage
       const token = localStorage.getItem('token');
-
-      const response = await fetch(`http://localhost:3002/atm/${cardId}`, {
+      const response = await fetch(`http://localhost:3002/atm/${id}`, {
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
-        const responseData = await response.json();
-        setCard(responseData.card);
-        setBalance(responseData.card.balance);
-      } else if (response.status === 401) {
-        // Handle unauthorized access
-        console.error('Unauthorized access');
+        const atmData = await response.json();
+        setCard(atmData);
+        setBalance(atmData.balance);
+      } else if (response.status === 404) {
+        console.error('Card not found');
       } else {
-        console.error('Failed to fetch card');
+        console.error('Failed to fetch card data');
       }
     } catch (error) {
-      console.error('Error fetching card:', error);
+      console.error('Error fetching card data:', error);
     }
   };
 
   const handleWithdraw = async () => {
     try {
-      // Perform the withdraw operation
       const newBalance = balance - parseInt(withdrawAmount);
-
-      // Retrieve the JWT token from the storage
-      const token = localStorage.getItem('token');
-
-      const response = await fetch(`http://localhost:3002/atm/${card.id}`, {
+      const response = await fetch(`http://localhost:3002/atm/${id}/withdraw`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ balance: newBalance }),
+        body: JSON.stringify({ amount: withdrawAmount }),
       });
 
       if (response.ok) {
-        // Update the balance in the state
         setBalance(newBalance);
         setWithdrawAmount('');
         console.log('Withdraw successful');
       } else if (response.status === 401) {
-        // Handle unauthorized access
         console.error('Unauthorized access');
       } else {
         console.error('Failed to withdraw');
@@ -72,28 +66,20 @@ const ATMPage = ({ match }) => {
 
   const handleDeposit = async () => {
     try {
-      // Perform the deposit operation
       const newBalance = balance + parseInt(depositAmount);
-
-      // Retrieve the JWT token from the storage
-      const token = localStorage.getItem('token');
-
-      const response = await fetch(`http://localhost:3002/atm/${card.id}`, {
+      const response = await fetch(`http://localhost:3002/atm/${id}/deposit`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ balance: newBalance }),
+        body: JSON.stringify({ amount: depositAmount }),
       });
 
       if (response.ok) {
-        // Update the balance in the state
         setBalance(newBalance);
         setDepositAmount('');
         console.log('Deposit successful');
       } else if (response.status === 401) {
-        // Handle unauthorized access
         console.error('Unauthorized access');
       } else {
         console.error('Failed to deposit');
@@ -105,20 +91,12 @@ const ATMPage = ({ match }) => {
 
   const handleCheckBalance = async () => {
     try {
-      // Retrieve the JWT token from the storage
-      const token = localStorage.getItem('token');
-
-      const response = await fetch(`http://localhost:3002/atm/${card.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(`http://localhost:3002/atm/${id}/balance`);
 
       if (response.ok) {
         const responseData = await response.json();
-        setBalance(responseData.card.balance);
+        setBalance(responseData.balance);
       } else if (response.status === 401) {
-        // Handle unauthorized access
         console.error('Unauthorized access');
       } else {
         console.error('Failed to check balance');
@@ -134,9 +112,7 @@ const ATMPage = ({ match }) => {
         <div>
           <h1>ATM</h1>
           <h3>Card Details</h3>
-          <div>Card Type: {card.cardtype}</div>
-          <div>Card Pin: {card.cardpin}</div>
-          <div>First Four Digits: {card.firstfournumbers}</div>
+          <div>Card Type: {card.cardType}</div>
           <div>Balance: {balance}</div>
           <h3>Withdraw</h3>
           <input
@@ -156,6 +132,7 @@ const ATMPage = ({ match }) => {
           <button onClick={handleDeposit}>Deposit</button>
           <h3>Check Balance</h3>
           <button onClick={handleCheckBalance}>Check Balance</button>
+          <Link to="/home">Go back to Cards</Link>
         </div>
       ) : (
         <p>Loading card...</p>
