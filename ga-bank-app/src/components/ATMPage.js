@@ -6,12 +6,6 @@ const ATMPage = () => {
   const [card, setCard] = useState(null);
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState('');
-  const [operation, setOperation] = useState('');
-
-  useEffect(() => {
-    // Fetch card data based on the provided id
-    fetchCardData();
-  }, []);
 
   const fetchCardData = async () => {
     try {
@@ -37,32 +31,36 @@ const ATMPage = () => {
     }
   };
 
+  useEffect(() => {
+    fetchCardData();
+  }, []);
+
   const handleNumberClick = (number) => {
     setAmount((prevAmount) => prevAmount + number);
   };
 
-  const handleTransaction = async () => {
+  const handleTransaction = async (transactionType) => {
     try {
-      const newBalance = operation === 'withdraw' ? balance - parseInt(amount) : balance + parseInt(amount);
-      const response = await fetch(`http://localhost:3002/atm/${id}/${operation}`, {
-        method: 'PATCH',
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:3002/atm/${id}/transaction`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ amount }),
+        body: JSON.stringify({ transactionType }),
       });
-
+  
       if (response.ok) {
-        setBalance(newBalance);
-        setAmount('');
-        console.log(`${operation.charAt(0).toUpperCase() + operation.slice(1)} successful`);
-      } else if (response.status === 401) {
-        console.error('Unauthorized access');
+        const transactionData = await response.json();
+        console.log('Transaction successful:', transactionData);
+        fetchCardData(); // Fetch updated card data after the transaction
       } else {
-        console.error(`Failed to ${operation}`);
+        const errorData = await response.json();
+        console.error('Error during transaction:', errorData.error);
       }
     } catch (error) {
-      console.error(`Error ${operation}ing:`, error);
+      console.error('Error during transaction:', error);
     }
   };
 
@@ -72,7 +70,8 @@ const ATMPage = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        setBalance(responseData.balance);
+        setBalance(responseData.balance.toFixed(2));
+        localStorage.setItem('balance', responseData.balance.toFixed(2));
       } else if (response.status === 401) {
         console.error('Unauthorized access');
       } else {
@@ -90,7 +89,7 @@ const ATMPage = () => {
           <h1>ATM</h1>
           <h3>Card Details</h3>
           <div>Card Type: {card.cardType}</div>
-          <div>Balance: {balance}</div>
+          <div>Balance: {parseFloat(balance).toFixed(2)}</div>
           <h3>Withdraw / Deposit</h3>
           <input
             type="number"
