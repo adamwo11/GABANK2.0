@@ -5,8 +5,8 @@ Also have a currency exchange feature users where can select a currency and can 
 
 # Wireframe/Flowchart
 
-![Wireframe](/GABANK2.0/ga-bank-app/Wireframe.png)
-![Flowchart](/GABANK2.0/ga-bank-app/flowchart.png)
+![Wireframe](/Users/adamsmac/sei/projects/Project4/GABANK2.0/ga-bank-app/Wireframe.png)
+![Flowchart](/Users/adamsmac/sei/projects/Project4/GABANK2.0/ga-bank-app/flowchart.png)
 
 # Bugs
 
