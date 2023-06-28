@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-const Home = ({ users }) => {
+import { useNavigate, Link } from 'react-router-dom';
+import './css/Home.css';
+import './css/style.css'
+const Home = ({ users, handleLogout }) => {
   const [cardNumber, setCardNumber] = useState('');
   const [cardName, setCardName] = useState('');
   const [first4, setFirst4] = useState('');
   const [userCards, setUserCards] = useState([]);
 
+  const heading = {
+    textAlign: 'center',
+  }
   useEffect(() => {
     // fetch the users and cards data when the component mounts
     fetchUserCards();
@@ -32,6 +36,7 @@ const Home = ({ users }) => {
       } else if (response.status === 401) {
         // Handle unauthorized access
         console.error('Unauthorized access');
+        handleLogout(); // Call the logout handler passed from the parent component
       } else {
         console.error('Failed to fetch user cards');
       }
@@ -66,7 +71,6 @@ const Home = ({ users }) => {
         console.log('Added Card:', responseData.card);
         fetchUserCards(); // Fetch updated card data after adding a new card
       } else {
-        // Handle error response
         const errorData = await response.json();
         console.error('Error adding card:', errorData.error);
       }
@@ -89,7 +93,7 @@ const Home = ({ users }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (response.ok) {
         const atmData = await response.json();
         console.log('ATM Data:', atmData);
@@ -101,51 +105,66 @@ const Home = ({ users }) => {
       console.error('Error fetching ATM data:', error);
     }
   };
+
+  const handleLogoutClick = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    handleLogout();
+    navigate('/login');
+  };
+
   return (
-    <div>
+    <div className="home-container">
+      <h1 style={heading}> GA BANK </h1>
+      <button onClick={handleLogoutClick} className="logout-button">Logout</button>
       {users && users.id ? (
         <div>
-          <h1>Welcome, {users.name}!</h1>
-          <h3>Add a Card</h3>
-            <div>
-              <label>Card Name:</label>
+          <h1 className="welcome-heading">Welcome, {users.name}!</h1>
+          <h3 className="add-card-heading">Add a Card</h3>
+          <div className="card-form">
+            <div className="form-group">
+              <label className="form-label">Card Name:</label>
               <input
-              type="text"
-              value={cardName}
-              onChange={(e) => setCardName(e.target.value)}
-              required
-            />
-        </div>
-          <div>
-            <label>Card Pin Number:</label>
-            <input
-              type="number"
-              value={cardNumber}
-              onChange={(e) => setCardNumber(e.target.value)}
-              required
-            />
+                type="text"
+                value={cardName}
+                onChange={(e) => setCardName(e.target.value)}
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Card Pin Number:</label>
+              <input
+                type="number"
+                value={cardNumber}
+                onChange={(e) => setCardNumber(e.target.value)}
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">First 4 digits:</label>
+              <input
+                type="number"
+                value={first4}
+                onChange={(e) => setFirst4(e.target.value)}
+                required
+                className="form-input"
+              />
+            </div>
+            <button onClick={addCard} className="add-card-button">Add Card</button>
           </div>
-          <div>
-            <label>First 4 digits:</label>
-            <input
-              type="number"
-              value={first4}
-              onChange={(e) => setFirst4(e.target.value)}
-              required
-            />
-          </div>
-          <button onClick={addCard}>Add Card</button>
-          <h3>Your Cards:</h3>
+          <h3 className="your-cards-heading">Your Cards:</h3>
           {userCards.length > 0 ? (
-            <ul>
+            <ul className="card-list">
               {userCards.map((cardData) => (
-                <li key={cardData.id}>
+                <li key={cardData.id} className="card-item">
                   <div>Card Type: {cardData.cardtype}</div>
                   <div>Card Pin: {cardData.cardpin}</div>
                   <div>First Four Digits: {cardData.firstfournumbers}</div>
                   <div>Balance: {cardData.balance}</div>
                   <div>
-                    <button onClick={() => navigateToATM(cardData.id)}>$</button>
+                    <button onClick={() => navigateToATM(cardData.id)} className="atm-button">$</button>
                   </div>
                 </li>
               ))}
@@ -153,10 +172,11 @@ const Home = ({ users }) => {
           ) : (
             <p>No cards found.</p>
           )}
-          </div>
+        </div>
       ) : (
-        <h1>Welcome, Guest!</h1>
+        <h1 className="welcome-heading">Welcome, Guest!</h1>
       )}
+      <Link to="/exchange-rates" className="exchange-link">Exchanger</Link>
     </div>
   );
 };

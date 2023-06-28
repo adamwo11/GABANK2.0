@@ -1,22 +1,25 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import './css/BankApp.css';
 
 const BankApp = ({ loggedIn, handleLogout }) => {
   return (
-    <div>
-      <h1>GA BANK</h1>
+    <div className="bankapp-container">
+      <h1 className="bankapp-heading">GA BANK</h1>
       <nav>
         {loggedIn ? (
-          <button onClick={handleLogout}>Logout</button>
+          <button className="bankapp-button" onClick={handleLogout}>
+            Logout
+          </button>
         ) : (
-          <>
-            <Link to="/login">
-              <button>Login</button>
+          <div className="bankapp-buttons">
+            <Link to="/login" className="bankapp-link">
+              <button className="bankapp-button bankapp-button-login">Login</button>
             </Link>
-            <Link to="/signup">
-              <button>Signup</button>
+            <Link to="/signup" className="bankapp-link">
+              <button className="bankapp-button bankapp-button-signup">Signup</button>
             </Link>
-          </>
+          </div>
         )}
       </nav>
     </div>

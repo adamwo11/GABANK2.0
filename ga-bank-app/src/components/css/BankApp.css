@@ -1,0 +1,42 @@
+.bankapp-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .bankapp-heading {
+    margin-bottom: 20px;
+    font-size: 32px;
+  }
+  
+  .bankapp-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .bankapp-link {
+    text-decoration: none;
+  }
+  
+  .bankapp-button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .bankapp-button-login {
+    background-color: #4285f4;
+    color: #fff;
+  }
+  
+  .bankapp-button-signup {
+    background-color: #34a853;
+    color: #fff;
+  }
+  

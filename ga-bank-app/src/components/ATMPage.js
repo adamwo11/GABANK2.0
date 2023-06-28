@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import './css/ATMPage.css';
 
 const ATMPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [card, setCard] = useState(null);
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState('');
-
-  const fetchCardData = async () => {
+  const heading = {
+    textAlign: 'left',
+  }
+  const fetchCardData = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`http://localhost:3002/atm/${id}`, {
@@ -29,93 +33,135 @@ const ATMPage = () => {
     } catch (error) {
       console.error('Error fetching card data:', error);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchCardData();
-  }, []);
+  }, [fetchCardData]);
 
   const handleNumberClick = (number) => {
-    setAmount((prevAmount) => prevAmount + number);
+    if (number === '.') {
+      if (!amount.includes('.')) {
+        setAmount((prevAmount) => prevAmount + '.');
+      }
+    } else {
+      setAmount((prevAmount) => prevAmount + number);
+    }
   };
 
-  const handleTransaction = async (transactionType) => {
+  const handleWithdrawal = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3002/atm/${id}/transaction`, {
-        method: 'POST',
+      const parsedAmount = parseFloat(amount); // Parse amount to a number
+  
+      // Check if the withdrawal amount exceeds the current balance
+      if (parsedAmount > balance) {
+        console.error('Insufficient balance');
+        return;
+      }
+  
+      const response = await fetch(`http://localhost:3002/atm/${id}/withdraw`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ transactionType }),
+        body: JSON.stringify({ amount: parsedAmount.toFixed(2) }), // Use parsedAmount and fix decimal places
       });
   
       if (response.ok) {
         const transactionData = await response.json();
-        console.log('Transaction successful:', transactionData);
-        fetchCardData(); // Fetch updated card data after the transaction
+        console.log('Withdrawal successful:', transactionData);
+        fetchCardData(); // Fetch updated card data after the withdrawal
       } else {
         const errorData = await response.json();
-        console.error('Error during transaction:', errorData.error);
+        console.error('Error during withdrawal:', errorData.error);
       }
     } catch (error) {
-      console.error('Error during transaction:', error);
+      console.error('Error during withdrawal:', error);
     }
+    handleClearAmount();
   };
 
-  const handleCheckBalance = async () => {
+  const handleDeposit = async () => {
     try {
-      const response = await fetch(`http://localhost:3002/atm/${id}/balance`);
+      const token = localStorage.getItem('token');
+      const parsedAmount = parseFloat(amount); // Parse amount to a number
+      const response = await fetch(`http://localhost:3002/atm/${id}/deposit`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ amount: parsedAmount.toFixed(2) }), // Use parsedAmount and fix decimal places
+      });
 
       if (response.ok) {
-        const responseData = await response.json();
-        setBalance(responseData.balance.toFixed(2));
-        localStorage.setItem('balance', responseData.balance.toFixed(2));
-      } else if (response.status === 401) {
-        console.error('Unauthorized access');
+        const transactionData = await response.json();
+        console.log('Deposit successful:', transactionData);
+        fetchCardData(); // Fetch updated card data after the deposit
       } else {
-        console.error('Failed to check balance');
+        const errorData = await response.json();
+        console.error('Error during deposit:', errorData.error);
       }
     } catch (error) {
-      console.error('Error checking balance:', error);
+      console.error('Error during deposit:', error);
     }
+    handleClearAmount();
+  };
+
+  
+  const handleClearAmount = () => {
+    setAmount('');
+  };
+  const handleGoBack = () => {
+    navigate('/home');
   };
 
   return (
-    <div>
+    <div className="atm-container">
       {card ? (
-        <div>
-          <h1>ATM</h1>
-          <h3>Card Details</h3>
-          <div>Card Type: {card.cardType}</div>
-          <div>Balance: {parseFloat(balance).toFixed(2)}</div>
-          <h3>Withdraw / Deposit</h3>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
-          />
-          <div>
-            <button onClick={() => handleTransaction('withdraw')}>Withdraw</button>
-            <button onClick={() => handleTransaction('deposit')}>Deposit</button>
+        <div className="atm">
+          <h1 className="atm-heading">GA BANK</h1>
+          <h1 className="atm-title">ATM</h1>
+          <div className="card-details">
+            <h3 className="card-details-heading">Card Details</h3>
+            <div className="card-type">Card Type: {card.cardType}</div>
+            <div className="balance">Balance: ${parseFloat(balance).toFixed(2)}</div>
           </div>
-          <div>
-            <button onClick={() => handleNumberClick(1)}>1</button>
-            <button onClick={() => handleNumberClick(2)}>2</button>
-            <button onClick={() => handleNumberClick(3)}>3</button>
-            <button onClick={() => handleNumberClick(4)}>4</button>
-            <button onClick={() => handleNumberClick(5)}>5</button>
-            <button onClick={() => handleNumberClick(6)}>6</button>
-            <button onClick={() => handleNumberClick(7)}>7</button>
-            <button onClick={() => handleNumberClick(8)}>8</button>
-            <button onClick={() => handleNumberClick(9)}>9</button>
-            <button onClick={() => handleNumberClick(0)}>0</button>
+          <h3 className="transaction-heading">Withdraw / Deposit</h3>
+          <button className="clear-amount-button" onClick={handleClearAmount}>
+            Clear Amount
+          </button>
+          <div className="amount-display">${amount}</div>
+          <div className="transaction-buttons">
+            <button className="withdraw-button" onClick={handleWithdrawal}>
+              Withdraw
+            </button>
+            <button className="deposit-button" onClick={handleDeposit}>
+              Deposit
+            </button>
           </div>
-          <h3>Check Balance</h3>
-          <button onClick={handleCheckBalance}>Check Balance</button>
-          <Link to="/home">Go back to Cards</Link>
+          <div className="number-buttons">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((number) => (
+              <button
+                key={number}
+                className="number-button"
+                onClick={() => handleNumberClick(number)}
+              >
+                {number}
+              </button>
+            ))}
+            <button
+              className="decimal-button"
+              onClick={() => handleNumberClick('.')}
+            >
+              .
+            </button>
+          </div>
+          <button className="go-back-button" onClick={handleGoBack}>
+            Go back to Cards
+          </button>
         </div>
       ) : (
         <p>Loading card...</p>

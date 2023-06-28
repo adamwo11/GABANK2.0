@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../css/LoginPage.css';
 
 const LoginPage = ({ handleLogin }) => {
   const navigate = useNavigate();
@@ -49,32 +50,35 @@ const LoginPage = ({ handleLogin }) => {
     }
 
     setIsLoading(false);
-    
   };
+
   return (
-    <div>
-      <h2>Login Page</h2>
-      <form onSubmit={handleLoginSubmit}>
-        <div>
-          <label>Email:</label>
+    <div className="login-page-container">
+      <h1 className="login-page-heading">GA BANK</h1>
+      <h2 className="login-page-subheading">Login Page</h2>
+      <form className="login-form" onSubmit={handleLoginSubmit}>
+        <div className="form-group">
+          <label htmlFor="email-input">Email:</label>
           <input
+            id="email-input"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
-        <div>
-          <label>Password:</label>
+        <div className="form-group">
+          <label htmlFor="password-input">Password:</label>
           <input
+            id="password-input"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
-        {error && <p>{error}</p>}
-        <button type="submit" disabled={isLoading}>
+        {error && <p className="error-message">{error}</p>}
+        <button className="login-button" type="submit" disabled={isLoading}>
           {isLoading ? 'Logging in...' : 'Login'}
         </button>
       </form>

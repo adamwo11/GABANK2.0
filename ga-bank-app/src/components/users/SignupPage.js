@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../css/SignupPage.css';
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -31,37 +32,40 @@ const SignupPage = () => {
   };
 
   return (
-    <div>
-      <h2>Signup Page</h2>
-      <form onSubmit={handleSignup}>
-        <div>
-          <label>First Name:</label>
+    <div className="signup-container">
+      <h2 className="signup-heading">Signup Page</h2>
+      <form onSubmit={handleSignup} className="signup-form">
+        <div className="form-group">
+          <label className="form-label">First Name:</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            className="form-input"
           />
         </div>
-        <div>
-          <label>Email:</label>
+        <div className="form-group">
+          <label className="form-label">Email:</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className="form-input"
           />
         </div>
-        <div>
-          <label>Password:</label>
+        <div className="form-group">
+          <label className="form-label">Password:</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className="form-input"
           />
         </div>
-        <button type="submit">Signup</button>
+        <button type="submit" className="signup-button">Signup</button>
       </form>
     </div>
   );
